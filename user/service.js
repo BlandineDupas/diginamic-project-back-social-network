@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const saltRounds = 10;
 
 /**
@@ -11,15 +13,15 @@ const hash = async (password) => {
     return await bcrypt.hash(password, saltRounds);
 };
 
-exports.Service = (MODEL) => {
+const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
+
+exports.Service = (MODEL, secret) => {
     /**
      * Creates a user
      * 
      * @param {*} user 
      */
     const create = async (user) => {
-        console.log(user)
-        console.log(user.password)
         const hashedPassword = await hash(user.password);
         return await MODEL.create({
             ...user,
@@ -30,6 +32,22 @@ exports.Service = (MODEL) => {
     const all = async () => {
         return await MODEL.findAll();
     }
+    
+    const logUser = async (email, password) => {
+        const user = await MODEL.findOne({ where: { email }});
+        const valid = await compareHash(password, user.password);
+        if (!valid) return;
+        const { id, lastname, firstname } = user;
+        return {
+            token: jwt.sign({ email, lastname, firstname }, secret, { expiresIn: '1h' }),
+            user: {
+                id,
+                lastname,
+                firstname,
+                email
+            }
+        }
+    }
 
-    return { create, all };
+    return { create, all, logUser };
 }
