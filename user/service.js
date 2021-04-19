@@ -17,7 +17,7 @@ exports.Service = (MODEL) => {
      * 
      * @param {*} user 
      */
-    const create = async ({ user }) => {
+    const create = async (user) => {
         console.log(user)
         console.log(user.password)
         const hashedPassword = await hash(user.password);
