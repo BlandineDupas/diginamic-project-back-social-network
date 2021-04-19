@@ -22,11 +22,17 @@ exports.Service = (MODEL, secret) => {
      * @param {*} user 
      */
     const create = async (user) => {
-        const hashedPassword = await hash(user.password);
-        return await MODEL.create({
-            ...user,
-            password: hashedPassword
-        });
+        const { email } = user;
+        const exists = await MODEL.findOne({ where: { email }});
+        if (!exists) {
+            const hashedPassword = await hash(user.password);
+            return await MODEL.create({
+                ...user,
+                password: hashedPassword
+            });
+        } else {
+            return { error: 'Cette adresse mail est déjà reliée à un compte' };
+        }
     }
 
     const all = async () => {
