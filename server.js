@@ -1,5 +1,6 @@
 const express = require('express');
 const Sequelize = require('sequelize');
+const cors = require('cors')
 
 // Routers
 const { userRouter } = require('./user/router');
@@ -7,6 +8,11 @@ const { userRouter } = require('./user/router');
 const app = express();
 const sequelize= new Sequelize('sqlite:database.db');
 
+const corsOptions = {
+    origin: process.env.REACT_URL,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api', userRouter(sequelize)); // concatène /api avec les routes du router
