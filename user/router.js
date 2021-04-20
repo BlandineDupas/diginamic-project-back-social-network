@@ -7,12 +7,12 @@ const router = express.Router();
 
 exports.userRouter = (sequelize, secret) => {
     const USER = userModel(sequelize);
-    const service = Service(USER, secret);
+    const service = Service(USER, secret, sequelize);
 
     router
     .route('/user')
     .get((request, response) => {
-        service.all().then((userList) => response.json(userList))
+        service.findAll().then((userList) => response.json(userList))
     })
     .post((request, response) => {
         service

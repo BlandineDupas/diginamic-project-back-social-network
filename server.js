@@ -22,6 +22,9 @@ app.use(express.json());
 app.use('/api', userRouter(sequelize, SECRET)); // concatène /api avec les routes du router
 app.use('/api', messageRouter(sequelize, SECRET));
 
+const { joinTables } = require('./db-setup'); // {} pour recevoir une fonction et non un objet
+joinTables(sequelize);
+
 sequelize
     .sync()
     .then(() => 

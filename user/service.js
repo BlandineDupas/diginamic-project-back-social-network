@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { messageModel } = require('../message/model');
 
 const saltRounds = 10;
 
@@ -15,7 +16,9 @@ const hash = async (password) => {
 
 const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
 
-exports.Service = (MODEL, secret) => {
+exports.Service = (MODEL, secret, sequelize) => {
+    const MESSAGE = messageModel(sequelize)
+
     /**
      * Creates a user
      * 
@@ -35,8 +38,8 @@ exports.Service = (MODEL, secret) => {
         }
     }
 
-    const all = async () => {
-        return await MODEL.findAll();
+    const findAll = async () => {
+        return await MODEL.findAll({ include: MESSAGE});
     }
     
     const logUser = async (email, password) => {
@@ -55,5 +58,5 @@ exports.Service = (MODEL, secret) => {
         }
     }
 
-    return { create, all, logUser };
+    return { create, findAll, logUser };
 }

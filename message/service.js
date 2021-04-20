@@ -10,7 +10,7 @@ exports.Service = (MODEL, secret) => {
         const { content, authorId } = message;
         return await MODEL.create({
             content,
-            authorId
+            'USERId': authorId
         });
     }
 
@@ -19,7 +19,7 @@ exports.Service = (MODEL, secret) => {
     }
 
     const findByAuthor = async (authorId) => {
-        return await MODEL.findAll({ where : {'authorId': authorId}});
+        return await MODEL.findAll({ where : {'USERId': authorId}});
     }
 
     return { create, findAll, findByAuthor };
