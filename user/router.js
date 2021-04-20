@@ -32,5 +32,23 @@ exports.userRouter = (sequelize, secret) => {
                 : response.status(403).json({ error: 'connection failed' }));
     });
 
+    router
+    .route('/user/:id')
+    .get((request, response) => {
+        service
+            .findOne(request.params.id)
+            .then(result => response.json(result))
+    })
+    .put((request, response) => {
+        service
+            .update(request.body, request.params.id)
+            .then(result => response.json(result))
+    })
+    .delete((request, response) => {
+        service
+            .destroy(request.params.id)
+            .then(result => response.json(result))
+    })
+
     return router;
 }

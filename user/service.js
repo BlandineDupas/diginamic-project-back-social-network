@@ -34,7 +34,16 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
 
     const destroy = async (id) => {
+        // TODO supprimer les données reliées au user
         return await MODEL.destroy({ where: { id }})
+    }
+
+    const update = async (user, id) => {
+        return await MODEL.update(user, { where: { id }})
+    }
+    
+    const findOne = async (id) => {
+        return await MODEL.findOne({ where: { id }})
     }
 
     const findAll = async () => {
@@ -57,5 +66,5 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    return { create, destroy, findAll, logUser };
+    return { create, destroy, update, findOne, findAll, logUser };
 }
