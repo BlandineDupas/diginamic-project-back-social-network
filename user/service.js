@@ -19,11 +19,6 @@ const compareHash = async (password, hash) => await bcrypt.compare(password, has
 exports.Service = (MODEL, secret, sequelize) => {
     const MESSAGE = messageModel(sequelize)
 
-    /**
-     * Creates a user
-     * 
-     * @param {*} user 
-     */
     const create = async (user) => {
         const { email } = user;
         const exists = await MODEL.findOne({ where: { email }});
@@ -36,6 +31,10 @@ exports.Service = (MODEL, secret, sequelize) => {
         } else {
             return { error: 'Cette adresse mail est déjà reliée à un compte' };
         }
+    }
+
+    const destroy = async (id) => {
+        return await MODEL.destroy({ where: { id }})
     }
 
     const findAll = async () => {
@@ -58,5 +57,5 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    return { create, findAll, logUser };
+    return { create, destroy, findAll, logUser };
 }

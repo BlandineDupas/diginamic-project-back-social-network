@@ -1,11 +1,6 @@
 const jwt = require('jsonwebtoken');
 
 exports.Service = (MODEL, secret) => {
-    /**
-     * Creates a user
-     * 
-     * @param {*} user 
-     */
     const create = async (message) => {
         const { content, authorId } = message;
         return await MODEL.create({
