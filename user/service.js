@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { messageModel } = require('../message/model');
 
 const saltRounds = 10;
 
@@ -17,8 +16,9 @@ const hash = async (password) => {
 const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
 
 exports.Service = (MODEL, secret, sequelize) => {
-    const MESSAGE = messageModel(sequelize)
+    const { MESSAGE, COMMENT } = sequelize.models
 
+    // CRUD
     const create = async (user) => {
         const { email } = user;
         const exists = await MODEL.findOne({ where: { email }});
@@ -32,24 +32,30 @@ exports.Service = (MODEL, secret, sequelize) => {
             return { error: 'Cette adresse mail est déjà reliée à un compte' };
         }
     }
+    
+    const findOne = async (id) => {
+        return await MODEL.findOne({ where: { id }})
+    }
+
+    const update = async (user, id) => {
+        return await MODEL.update(user, { where: { id }})
+    }
 
     const destroy = async (id) => {
         // TODO supprimer les données reliées au user
         return await MODEL.destroy({ where: { id }})
     }
 
-    const update = async (user, id) => {
-        return await MODEL.update(user, { where: { id }})
-    }
-    
-    const findOne = async (id) => {
-        return await MODEL.findOne({ where: { id }})
-    }
-
+    // Find All
     const findAll = async () => {
-        return await MODEL.findAll({ include: MESSAGE});
+        return await MODEL.findAll({
+            include: [
+                { model: MESSAGE, include: COMMENT},
+                'friends'
+            ]});
     }
     
+    // Specific
     const logUser = async (email, password) => {
         const user = await MODEL.findOne({ where: { email }});
         const valid = await compareHash(password, user.password);
@@ -66,5 +72,5 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    return { create, destroy, update, findOne, findAll, logUser };
+    return { create, findOne, update, destroy, findAll, logUser };
 }

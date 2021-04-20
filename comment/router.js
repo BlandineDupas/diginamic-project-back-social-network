@@ -1,12 +1,10 @@
 const express = require('express');
-const { commentModel } = require('./model');
 const { Service } = require('./service');
 
 const router = express.Router();
 
-exports.commentRouter = (sequelize, secret) => {
-    const COMMENT = commentModel(sequelize);
-    const service = Service(COMMENT, secret);
+exports.commentRouter = (MODEL, sequelize, secret) => {
+    const service = Service(MODEL, secret);
 
     router
     .route('/comment')
@@ -18,6 +16,25 @@ exports.commentRouter = (sequelize, secret) => {
             .create(request.body)
             .then((result) => result.error ? response.json(result) : response.json('comment successfully created'));
     });
+
+    router
+    .route('/comment/:id')
+    .get((request, response) => {
+        service
+            .findOne(request.params.id)
+            .then(result => response.json(result))
+    })
+    .put((request, response) => {
+        service
+            .update(request.body, request.params.id)
+            .then(result => response.json(result))
+    })
+    .delete((request, response) => {
+        service
+            .destroy(request.params.id)
+            .then(result => response.json(result))
+    })
+
 
     return router;
 }
