@@ -9,6 +9,7 @@ const app = express();
 const sequelize= new Sequelize('sqlite:database.db');
 
 const SECRET = process.env.SECRET || 'xxx';
+const PORT =process.env.PORT || 8000
 
 const corsOptions = {
     origin: process.env.REACT_URL,
@@ -22,5 +23,5 @@ app.use('/api', userRouter(sequelize, SECRET)); // concatène /api avec les rout
 sequelize
     .sync()
     .then(() => 
-        app.listen('8000', () => console.log('Social Network API started on 8000 port'))
+        app.listen(PORT, () => console.log('Social Network API started on ' + PORT + 'port'))
     );
