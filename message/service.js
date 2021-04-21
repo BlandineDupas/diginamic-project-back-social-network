@@ -1,5 +1,5 @@
 exports.Service = (MODEL, secret, sequelize) => {
-    const { COMMENT } = sequelize.models
+    const { COMMENT, USER } = sequelize.models
     
     // CRUD
     const create = async (message) => {
@@ -30,7 +30,10 @@ exports.Service = (MODEL, secret, sequelize) => {
 
     // Specific
     const findByAuthor = async (authorId) => {
-        return await MODEL.findAll({ where : {'USERId': authorId}});
+        return await MODEL.findAll({
+            where : {'USERId': authorId},
+            include: USER
+        });
     }
 
     return { create, findOne, update, destroy, findAll, findByAuthor };

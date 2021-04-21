@@ -6,7 +6,6 @@ exports.messageModel = (sequelize) => {
     MESSAGE.init(
         {
             content: DataTypes.TEXT,
-            // authorId: DataTypes.INTEGER,
         },
         { sequelize }
     );

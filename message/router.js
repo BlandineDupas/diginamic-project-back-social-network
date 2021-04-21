@@ -37,7 +37,7 @@ exports.messageRouter = (MODEL, sequelize, secret) => {
 
     // TODO changer l'adresse
     router
-    .route('/message/:userId')
+    .route('/message/author/:userId')
     .get((request, response) => {
         console.log(request.params.userId);
         service
