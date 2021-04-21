@@ -34,7 +34,7 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
     
     const findOne = async (id) => {
-        return await MODEL.findOne({ where: { id }})
+        return await MODEL.findOne({ where: { id } })
     }
 
     const update = async (user, id) => {
@@ -51,15 +51,21 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findAll({
             include: [
                 { model: MESSAGE, include: COMMENT},
-                'friends'
             ]});
     }
     
     // Specific
     const logUser = async (email, password) => {
-        const user = await MODEL.findOne({ where: { email }});
+        const user = await MODEL.findOne({
+            where: { email },
+            // include: 'friends' // TODO les messages des amis
+        });
+
+        if (!user) return { error: 'Cet utilisateur n\'existe pas' };
+        
         const valid = await compareHash(password, user.password);
-        if (!valid) return;
+        if (!valid) return { error: 'Mauvais mot de passe' };
+        
         const { id, lastname, firstname } = user;
         return {
             token: jwt.sign({ email, lastname, firstname }, secret, { expiresIn: '1h' }),

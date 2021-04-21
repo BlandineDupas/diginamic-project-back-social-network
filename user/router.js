@@ -1,12 +1,10 @@
 const { response, request } = require('express');
 const express = require('express');
-// const { userModel } = require('./model');
 const { Service } = require('./service');
 
 const router = express.Router();
 
 exports.userRouter = (MODEL, sequelize, secret) => {
-    // const USER = userModel(sequelize);
     const service = Service(MODEL, secret, sequelize);
 
     router
@@ -29,7 +27,7 @@ exports.userRouter = (MODEL, sequelize, secret) => {
             .then((answer) => 
                 answer.token
                 ? response.json(answer)
-                : response.status(403).json({ error: 'connection failed' }));
+                : response.status(403).json(answer));
     });
 
     router
