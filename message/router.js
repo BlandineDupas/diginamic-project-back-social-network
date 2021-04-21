@@ -14,7 +14,7 @@ exports.messageRouter = (MODEL, sequelize, secret) => {
     .post((request, response) => {
         service
             .create(request.body)
-            .then((result) => result.error ? response.json(result) : response.json('message successfully created'));
+            .then((result) => !result.error && response.json(result))
     });
 
     router

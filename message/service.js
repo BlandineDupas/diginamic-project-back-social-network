@@ -32,7 +32,10 @@ exports.Service = (MODEL, secret, sequelize) => {
     const findByAuthor = async (authorId) => {
         return await MODEL.findAll({
             where : {'USERId': authorId},
-            include: USER
+            include: [
+                USER,
+                { model: COMMENT, include: USER}
+            ]
         });
     }
 
