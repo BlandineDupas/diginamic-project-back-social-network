@@ -1,39 +1,24 @@
-const { response, request } = require('express');
 const express = require('express');
-// const { userModel } = require('./model');
 const { Service } = require('./service');
 
 const router = express.Router();
 
-exports.userRouter = (MODEL, sequelize, secret) => {
-    // const USER = userModel(sequelize);
+exports.messageRouter = (MODEL, sequelize, secret) => {
     const service = Service(MODEL, secret, sequelize);
 
     router
-    .route('/user')
+    .route('/message')
     .get((request, response) => {
-        service.findAll().then((userList) => response.json(userList))
+        service.findAll().then((messageList) => response.json(messageList))
     })
     .post((request, response) => {
         service
             .create(request.body)
-            .then((result) => result.error ? response.json(result) : response.json('user successfully created'));
+            .then((result) => result.error ? response.json(result) : response.json('message successfully created'));
     });
 
     router
-    .route('/login')
-    .post((request, response) => {
-        const { email, password } = request.body;
-        service
-            .logUser(email, password)
-            .then((answer) => 
-                answer.token
-                ? response.json(answer)
-                : response.status(403).json({ error: 'connection failed' }));
-    });
-
-    router
-    .route('/user/:id')
+    .route('/message/:id')
     .get((request, response) => {
         service
             .findOne(request.params.id)
@@ -48,6 +33,16 @@ exports.userRouter = (MODEL, sequelize, secret) => {
         service
             .destroy(request.params.id)
             .then(result => response.json(result))
+    })
+
+    // TODO changer l'adresse
+    router
+    .route('/message/author/:userId')
+    .get((request, response) => {
+        console.log(request.params.userId);
+        service
+            .findByAuthor(request.params.userId)
+            .then((result) => response.json(result))
     })
 
     return router;
