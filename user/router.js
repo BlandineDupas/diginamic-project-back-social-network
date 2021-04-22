@@ -10,7 +10,7 @@ exports.userRouter = (MODEL, sequelize, secret) => {
     router
     .route('/user')
     .get((request, response) => {
-        service.findAll().then((userList) => response.json(userList))
+        service.findAll(request.query).then((userList) => response.json(userList))
     })
     .post((request, response) => {
         service

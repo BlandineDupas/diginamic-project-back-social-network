@@ -1,3 +1,4 @@
+const { Sequelize, Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -53,8 +54,30 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
 
     // Find All
-    const findAll = async () => { // TODO supprimer les includes, ils ne sont pas nécessaires en vrai
+    const findAll = async ({ search }) => { // TODO supprimer les includes, ils ne sont pas nécessaires en vrai
+        console.log('SEARCH : ', search);
+        const words = search.split(' ');
+        let whereParam;
+        // TODO trouver un moyen plus optimisé de gérer les différentes possibilités (et 4, 5 ou plus de mots ???)
+        words.length === 1 && (whereParam = Sequelize.or(
+            { firstname: {[Op.like]: '%' + words[0] + '%'}},
+            { lastname: {[Op.like]: '%' + words[0] + '%'}}
+        ));
+
+        words.length === 2 && (whereParam = Sequelize.or(
+            { firstname: {[Op.like]: '%' + words[0] + ' ' + words[1] + '%'}},
+            { lastname: {[Op.like]: '%' + words[0] + ' ' + words[1] + '%'}},
+            { firstname: {[Op.like]: '%' + words[0] + '%'}, lastname: {[Op.like]: '%' + words[1] + '%'}},
+            { firstname: {[Op.like]: '%' + words[1] + '%'}, lastname: {[Op.like]: '%' + words[0] + '%'}}
+        ));
+
+        words.length === 3 && (whereParam = Sequelize.or(
+            { firstname: {[Op.like]: '%' + words[0] + ' ' + words[1] + '%'}, lastname: {[Op.like]: '%' + words[2] + '%'}},
+            { firstname: {[Op.like]: '%' + words[0] + '%'}, lastname: {[Op.like]: '%' + words[1] + ' ' + words[2] + '%'}}
+        ));
+
         return await MODEL.findAll({
+            where: whereParam,
             include: [
                 { model: MESSAGE, include: COMMENT},
                 { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
@@ -67,7 +90,11 @@ exports.Service = (MODEL, secret, sequelize) => {
     const logUser = async (email, password) => {
         const user = await MODEL.findOne({
             where: { email },
-            // include: 'friends' // TODO les messages des amis
+            include: [
+                { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
+                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
+                { association: 'friends', through: { attributes: [] } },    
+            ]
         });
 
         if (!user) return { error: 'Cet utilisateur n\'existe pas' };
@@ -78,12 +105,7 @@ exports.Service = (MODEL, secret, sequelize) => {
         const { id, lastname, firstname } = user;
         return {
             token: jwt.sign({ email, lastname, firstname }, secret, { expiresIn: '1h' }),
-            user: {
-                id,
-                lastname,
-                firstname,
-                email
-            }
+            user
         }
     }
 
