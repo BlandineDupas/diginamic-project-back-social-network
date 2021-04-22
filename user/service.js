@@ -16,7 +16,7 @@ const hash = async (password) => {
 const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
 
 exports.Service = (MODEL, secret, sequelize) => {
-    const { MESSAGE, COMMENT } = sequelize.models
+    const { MESSAGE, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE } = sequelize.models
 
     // CRUD
     const create = async (user) => {
@@ -51,6 +51,8 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findAll({
             include: [
                 { model: MESSAGE, include: COMMENT},
+                'proposed_invites',
+                'received_invites'
             ]});
     }
     
@@ -78,5 +80,20 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    return { create, findOne, update, destroy, findAll, logUser };
+    const proposeInvite = async (invite) => { // TODO ajouter le status, ça ne le met pas actuellement
+        const {status, proposerId, receiverId} = invite;
+        const newInvite = await PROPOSED_INVITE.create({
+            status,
+            proposerId,
+            receiverId
+        })
+        await RECEIVED_INVITE.create({
+            status,
+            proposerId,
+            receiverId
+        })
+        return newInvite;
+    }
+
+    return { create, findOne, update, destroy, findAll, logUser, proposeInvite };
 }

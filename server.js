@@ -20,18 +20,15 @@ app.use(express.json());
 const { userRouter } = require('./user/router');
 const { messageRouter } = require('./message/router');
 const { commentRouter } = require('./comment/router');
-const { inviteRouter } = require('./invite/router');
 
 // Models
 const { userModel } = require('./user/model');
 const { messageModel } = require('./message/model');
 const { commentModel } = require('./comment/model');
-const { inviteModel } = require('./invite/model');
 
 const USER = userModel(sequelize);
 const MESSAGE = messageModel(sequelize);
 const COMMENT = commentModel(sequelize);
-const INVITE = inviteModel(sequelize)
 
 const { joinTables } = require('./db-setup'); // {} pour recevoir une fonction et non un objet
 joinTables(sequelize);
@@ -52,7 +49,6 @@ joinTables(sequelize);
 app.use('/api', userRouter(USER, sequelize, SECRET)); // concatène /api avec les routes du router
 app.use('/api', messageRouter(MESSAGE, sequelize, SECRET));
 app.use('/api', commentRouter(COMMENT, sequelize, SECRET));
-app.use('/api', inviteRouter(INVITE, sequelize, SECRET));
 
 sequelize
     .sync()

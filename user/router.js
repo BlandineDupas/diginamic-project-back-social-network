@@ -48,5 +48,14 @@ exports.userRouter = (MODEL, sequelize, secret) => {
             .then(result => response.json(result))
     })
 
+    router
+    .route('/user/invite')
+    .post((request, response) => {
+        console.log(request.body);
+        service
+            .proposeInvite(request.body)
+            .then((result) => response.json(result))
+    })
+
     return router;
 }
