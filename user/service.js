@@ -56,8 +56,9 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findAll({
             include: [
                 { model: MESSAGE, include: COMMENT},
-                { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
-                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } }
+                'proposed_invites'
+                // { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
+                // { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } }
             ]});
     }
     
@@ -85,20 +86,26 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    const proposeInvite = async (invite) => {
-        const {status, proposerId, receiverId} = invite;
+    const proposeInvite = async (invite, proposerId) => {
+        const { receiverId } = invite;
         const newInvite = await PROPOSED_INVITE.create({
-            status,
+            status: 'waiting',
             proposerId,
             receiverId
         })
         await RECEIVED_INVITE.create({
-            status,
+            status: 'waiting',
             proposerId,
             receiverId
         })
         return newInvite;
     }
 
-    return { create, findOne, update, destroy, findAll, logUser, proposeInvite };
+    const answerInvite = async (answer, receiverId) => {
+        const { proposerId, status } = answer;
+        await PROPOSED_INVITE.update({status}, { where: { proposerId, receiverId }});
+        return await RECEIVED_INVITE.update({status}, { where: { proposerId, receiverId } });
+    }
+
+    return { create, findOne, update, destroy, findAll, logUser, proposeInvite, answerInvite };
 }
