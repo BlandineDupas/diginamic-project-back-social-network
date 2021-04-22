@@ -16,7 +16,7 @@ const hash = async (password) => {
 const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
 
 exports.Service = (MODEL, secret, sequelize) => {
-    const { MESSAGE, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE } = sequelize.models
+    const { MESSAGE, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE, FRIENDS } = sequelize.models
 
     // CRUD
     const create = async (user) => {
@@ -37,7 +37,8 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findOne({
             where: { id },
             include: [
-                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } }
+                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
+                { association: 'friends', through: { attributes: [] } },
             ]
         })
     }
@@ -56,9 +57,9 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findAll({
             include: [
                 { model: MESSAGE, include: COMMENT},
-                'proposed_invites'
-                // { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
-                // { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } }
+                { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
+                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
+                { association: 'friends', through: { attributes: [] } },
             ]});
     }
     
@@ -88,23 +89,40 @@ exports.Service = (MODEL, secret, sequelize) => {
 
     const proposeInvite = async (invite, proposerId) => {
         const { receiverId } = invite;
-        const newInvite = await PROPOSED_INVITE.create({
+        const proposedInvite = await PROPOSED_INVITE.create({
             status: 'waiting',
             proposerId,
             receiverId
-        })
-        await RECEIVED_INVITE.create({
+        });
+        const receivedInvite = await RECEIVED_INVITE.create({
             status: 'waiting',
             proposerId,
             receiverId
-        })
-        return newInvite;
+        });
+        return { proposedInvite, receivedInvite };
     }
 
     const answerInvite = async (answer, receiverId) => {
         const { proposerId, status } = answer;
-        await PROPOSED_INVITE.update({status}, { where: { proposerId, receiverId }});
-        return await RECEIVED_INVITE.update({status}, { where: { proposerId, receiverId } });
+
+        const proposedInvite = await PROPOSED_INVITE.update({status}, { where: { proposerId, receiverId }});
+        const receivedInvite = await RECEIVED_INVITE.update({status}, { where: { proposerId, receiverId } });
+
+        if (status === "accepted") {
+            await MODEL.findOne({ where: { id: proposerId }});
+             const proposer = await FRIENDS.create({
+                friend1: proposerId,
+                friend2: receiverId
+            });
+            const receiver = await FRIENDS.create({
+                friend2: proposerId,
+                friend1: receiverId
+            });
+    
+            return { receiver, proposer };
+        } else {
+            return {proposedInvite, receivedInvite};
+        }
     }
 
     return { create, findOne, update, destroy, findAll, logUser, proposeInvite, answerInvite };

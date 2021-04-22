@@ -15,7 +15,6 @@ exports.joinTables = (sequelize) => {
         foreignKey: 'proposerId',
         otherKey: 'receiverId',
     });
-
     USER.belongsToMany(USER, {
         through: 'RECEIVED_INVITE',
         as: 'received_invites',
@@ -23,21 +22,12 @@ exports.joinTables = (sequelize) => {
         otherKey: 'proposerId',
     });
 
-
-
-    // USER.belongsToMany(USER, {
-    //     as: 'friends',
-    //     through: 'USER_USER',
-        // foreignKey: 'friend1',
-        // otherKey: 'friend2'
-    // }); // friends
-    // USER.belongsToMany(USER, {
-    //     as: 'friendsbis',
-    //     through: 'USER_USER',
-    //     foreignKey: 'friend2',
-    //     otherKey: 'friend1'
-    // }); // friends
-
+    USER.belongsToMany(USER, {
+        through: 'FRIENDS',
+        as: 'friends',
+        foreignKey: 'friend1',
+        otherKey: 'friend2',
+    });
 
     // COMMENT.hasMany(USER); // likes
     // MESSAGE.hasMany(USER); // likes
