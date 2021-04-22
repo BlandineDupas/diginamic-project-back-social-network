@@ -5,6 +5,10 @@ exports.joinTables = (sequelize) => {
     USER.hasMany(MESSAGE);
     MESSAGE.belongsTo(USER);
 
+    MESSAGE.hasMany(COMMENT);
+    COMMENT.belongsTo(MESSAGE);
+    COMMENT.belongsTo(USER);
+
     USER.belongsToMany(USER, {
         through: 'PROPOSED_INVITE',
         as: 'proposed_invites',
@@ -34,9 +38,6 @@ exports.joinTables = (sequelize) => {
     //     otherKey: 'friend1'
     // }); // friends
 
-    MESSAGE.hasMany(COMMENT);
-    COMMENT.belongsTo(MESSAGE);
-    COMMENT.belongsTo(USER);
 
     // COMMENT.hasMany(USER); // likes
     // MESSAGE.hasMany(USER); // likes
