@@ -25,10 +25,14 @@ const { commentRouter } = require('./comment/router');
 const { userModel } = require('./user/model');
 const { messageModel } = require('./message/model');
 const { commentModel } = require('./comment/model');
+const { proposedInvitesModel } = require('./user_user/proposed_invites');
+const { receivedInvitesModel } = require('./user_user/received_invites');
 
 const USER = userModel(sequelize);
 const MESSAGE = messageModel(sequelize);
 const COMMENT = commentModel(sequelize);
+const PROPOSED_INVITE = proposedInvitesModel(sequelize); // TODO suppress const and just initialise Model
+const RECEIVED_INVITE = receivedInvitesModel(sequelize);
 
 const { joinTables } = require('./db-setup'); // {} pour recevoir une fonction et non un objet
 joinTables(sequelize);

@@ -34,7 +34,12 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
     
     const findOne = async (id) => {
-        return await MODEL.findOne({ where: { id } })
+        return await MODEL.findOne({
+            where: { id },
+            include: [
+                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } }
+            ]
+        })
     }
 
     const update = async (user, id) => {
@@ -47,12 +52,12 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
 
     // Find All
-    const findAll = async () => {
+    const findAll = async () => { // TODO supprimer les includes, ils ne sont pas nécessaires en vrai
         return await MODEL.findAll({
             include: [
                 { model: MESSAGE, include: COMMENT},
-                'proposed_invites',
-                'received_invites'
+                { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
+                { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } }
             ]});
     }
     
@@ -80,7 +85,7 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    const proposeInvite = async (invite) => { // TODO ajouter le status, ça ne le met pas actuellement
+    const proposeInvite = async (invite) => {
         const {status, proposerId, receiverId} = invite;
         const newInvite = await PROPOSED_INVITE.create({
             status,

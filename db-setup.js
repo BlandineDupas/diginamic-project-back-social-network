@@ -1,6 +1,6 @@
 exports.joinTables = (sequelize) => {
     console.log('MODELS', sequelize.models);
-    const { USER, MESSAGE, COMMENT, INVITE } = sequelize.models;
+    const { USER, MESSAGE, COMMENT } = sequelize.models;
 
     USER.hasMany(MESSAGE);
     MESSAGE.belongsTo(USER);
