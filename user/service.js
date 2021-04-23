@@ -56,7 +56,8 @@ exports.Service = (MODEL, secret, sequelize) => {
     // Find All
     const findAll = async ({ search }) => { // TODO supprimer les includes, ils ne sont pas nécessaires en vrai
         console.log('SEARCH : ', search);
-        const words = search.split(' ');
+        let words = [];
+        search && (words = search.split(' '));
         let whereParam;
         // TODO trouver un moyen plus optimisé de gérer les différentes possibilités (et 4, 5 ou plus de mots ???)
         words.length === 1 && (whereParam = Sequelize.or(
@@ -147,5 +148,13 @@ exports.Service = (MODEL, secret, sequelize) => {
         }
     }
 
-    return { create, findOne, update, destroy, findAll, logUser, proposeInvite, answerInvite };
+    const destroyInvite = async (invite, proposerId) => {
+        const { receiverId } = invite;
+        const proposedInvite = await PROPOSED_INVITE.destroy({ where: { proposerId, receiverId }})
+        const receivedInvite = await RECEIVED_INVITE.destroy({ where: { proposerId, receiverId }})
+        return { proposedInvite, receivedInvite };
+    }
+
+
+    return { create, findOne, update, destroy, findAll, logUser, proposeInvite, answerInvite, destroyInvite };
 }

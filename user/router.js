@@ -60,6 +60,11 @@ exports.userRouter = (MODEL, sequelize, secret) => {
             .answerInvite(request.body, request.params.id)
             .then(result => response.json(result))
     })
+    .delete((request, response) => {
+        service
+            .destroyInvite(request.body, request.params.id)
+            .then(result => response.json(result))
+    })
 
     return router;
 }
