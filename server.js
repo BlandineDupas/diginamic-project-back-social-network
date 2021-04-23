@@ -41,14 +41,14 @@ joinTables(sequelize);
  * Ce middeware valide le JWT et rajoute un attribut user à la requete.
  * Cet attribut contient la payload du jeton
  */
-//  app.use(
-//     jwtMiddelware({ secret: SECRET, algorithms: ['HS256'] }).unless({
-//         path: [
-//             '/api/login',
-//             { url: '/api/user', methods: ['POST'] }
-//         ],
-//     })
-//   );
+app.use(
+    jwtMiddelware({ secret: SECRET, algorithms: ['HS256'] }).unless({
+        path: [
+            '/api/login',
+            { url: '/api/user', methods: ['POST'] }
+        ],
+    })
+);
 
 app.use('/api', userRouter(USER, sequelize, SECRET)); // concatène /api avec les routes du router
 app.use('/api', messageRouter(MESSAGE, sequelize, SECRET));

@@ -38,8 +38,11 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findOne({
             where: { id },
             include: [
+                // { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
+                // { association: 'friends', through: { attributes: [] } },
+                { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
                 { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
-                { association: 'friends', through: { attributes: [] } },
+                { association: 'friends', through: { attributes: [] } },    
             ]
         })
     }
@@ -103,7 +106,7 @@ exports.Service = (MODEL, secret, sequelize) => {
         const valid = await compareHash(password, user.password);
         if (!valid) return { error: 'Mauvais mot de passe' };
         
-        const { id, lastname, firstname } = user;
+        const { lastname, firstname } = user;
         return {
             token: jwt.sign({ email, lastname, firstname }, secret, { expiresIn: '1h' }),
             user
@@ -112,17 +115,17 @@ exports.Service = (MODEL, secret, sequelize) => {
 
     const proposeInvite = async (invite, proposerId) => {
         const { receiverId } = invite;
-        const proposedInvite = await PROPOSED_INVITE.create({
+        await PROPOSED_INVITE.create({
             status: 'waiting',
             proposerId,
             receiverId
         });
-        const receivedInvite = await RECEIVED_INVITE.create({
+        await RECEIVED_INVITE.create({
             status: 'waiting',
             proposerId,
             receiverId
         });
-        return { proposedInvite, receivedInvite };
+        return findOne(proposerId);
     }
 
     const answerInvite = async (answer, receiverId) => {
@@ -132,27 +135,23 @@ exports.Service = (MODEL, secret, sequelize) => {
         const receivedInvite = await RECEIVED_INVITE.update({status}, { where: { proposerId, receiverId } });
 
         if (status === "accepted") {
-            await MODEL.findOne({ where: { id: proposerId }});
-             const proposer = await FRIENDS.create({
+            await FRIENDS.create({
                 friend1: proposerId,
                 friend2: receiverId
             });
-            const receiver = await FRIENDS.create({
+            await FRIENDS.create({
                 friend2: proposerId,
                 friend1: receiverId
             });
-    
-            return { receiver, proposer };
-        } else {
-            return {proposedInvite, receivedInvite};
         }
+        return findOne(receiverId);
     }
 
     const destroyInvite = async (invite, proposerId) => {
         const { receiverId } = invite;
-        const proposedInvite = await PROPOSED_INVITE.destroy({ where: { proposerId, receiverId }})
-        const receivedInvite = await RECEIVED_INVITE.destroy({ where: { proposerId, receiverId }})
-        return { proposedInvite, receivedInvite };
+        await PROPOSED_INVITE.destroy({ where: { proposerId, receiverId }})
+        await RECEIVED_INVITE.destroy({ where: { proposerId, receiverId }})
+        return findOne(proposerId);
     }
 
 
