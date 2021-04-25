@@ -17,7 +17,7 @@ const hash = async (password) => {
 const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
 
 exports.Service = (MODEL, secret, sequelize) => {
-    const { MESSAGE, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE, FRIENDS } = sequelize.models
+    const { POST, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE, FRIENDS } = sequelize.models
 
     // CRUD
     const create = async (user) => {
@@ -58,10 +58,9 @@ exports.Service = (MODEL, secret, sequelize) => {
 
     // Find All
     const findAll = async ({ search }) => { // TODO supprimer les includes, ils ne sont pas nécessaires en vrai
-        console.log('SEARCH : ', search);
         let words = [];
         search && (words = search.split(' '));
-        let whereParam;
+        let whereParam = {};
         // TODO trouver un moyen plus optimisé de gérer les différentes possibilités (et 4, 5 ou plus de mots ???)
         words.length === 1 && (whereParam = Sequelize.or(
             { firstname: {[Op.like]: '%' + words[0] + '%'}},
@@ -83,7 +82,7 @@ exports.Service = (MODEL, secret, sequelize) => {
         return await MODEL.findAll({
             where: whereParam,
             include: [
-                { model: MESSAGE, include: COMMENT},
+                { model: POST, include: COMMENT},
                 { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
                 { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
                 { association: 'friends', through: { attributes: [] } },

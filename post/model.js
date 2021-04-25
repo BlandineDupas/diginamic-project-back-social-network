@@ -1,13 +1,13 @@
 const { Model, DataTypes } = require('sequelize');
 
-class MESSAGE extends Model {}
+class POST extends Model {}
 
-exports.messageModel = (sequelize) => {
-    MESSAGE.init(
+exports.postModel = (sequelize) => {
+    POST.init(
         {
             content: DataTypes.TEXT,
         },
         { sequelize }
     );
-    return MESSAGE;
+    return POST;
 };

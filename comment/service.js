@@ -1,11 +1,11 @@
 exports.Service = (MODEL, secret) => {
     // CRUD
     const create = async (comment) => {
-        const { content, authorId, messageId } = comment;
+        const { content, authorId, postId } = comment;
         return await MODEL.create({
             content,
             'USERId': authorId,
-            'MESSAGEId': messageId
+            'POSTId': postId
         });
     }
     const findOne = async (id) => {

@@ -1,12 +1,12 @@
 exports.joinTables = (sequelize) => {
-    console.log('MODELS', sequelize.models);
-    const { USER, MESSAGE, COMMENT } = sequelize.models;
+    // console.log('MODELS', sequelize.models);
+    const { USER, POST, COMMENT } = sequelize.models;
 
-    USER.hasMany(MESSAGE);
-    MESSAGE.belongsTo(USER);
+    USER.hasMany(POST);
+    POST.belongsTo(USER);
 
-    MESSAGE.hasMany(COMMENT);
-    COMMENT.belongsTo(MESSAGE);
+    POST.hasMany(COMMENT);
+    COMMENT.belongsTo(POST);
     COMMENT.belongsTo(USER);
 
     USER.belongsToMany(USER, {
@@ -30,5 +30,5 @@ exports.joinTables = (sequelize) => {
     });
 
     // COMMENT.hasMany(USER); // likes
-    // MESSAGE.hasMany(USER); // likes
+    // POST.hasMany(USER); // likes
 };

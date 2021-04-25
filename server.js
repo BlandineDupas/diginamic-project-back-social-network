@@ -18,21 +18,21 @@ app.use(express.json());
 
 // Routers
 const { userRouter } = require('./user/router');
-const { messageRouter } = require('./message/router');
+const { postRouter } = require('./post/router');
 const { commentRouter } = require('./comment/router');
 
 // Models
 const { userModel } = require('./user/model');
-const { messageModel } = require('./message/model');
+const { postModel } = require('./post/model');
 const { commentModel } = require('./comment/model');
 const { proposedInvitesModel } = require('./user_user/proposed_invites');
 const { receivedInvitesModel } = require('./user_user/received_invites');
 
 const USER = userModel(sequelize);
-const MESSAGE = messageModel(sequelize);
+const POST = postModel(sequelize);
 const COMMENT = commentModel(sequelize);
-const PROPOSED_INVITE = proposedInvitesModel(sequelize); // TODO suppress const and just initialise Model
-const RECEIVED_INVITE = receivedInvitesModel(sequelize);
+proposedInvitesModel(sequelize);
+receivedInvitesModel(sequelize);
 
 const { joinTables } = require('./db-setup'); // {} pour recevoir une fonction et non un objet
 joinTables(sequelize);
@@ -51,7 +51,7 @@ app.use(
 );
 
 app.use('/api', userRouter(USER, sequelize, SECRET)); // concatène /api avec les routes du router
-app.use('/api', messageRouter(MESSAGE, sequelize, SECRET));
+app.use('/api', postRouter(POST, sequelize, SECRET));
 app.use('/api', commentRouter(COMMENT, sequelize, SECRET));
 
 sequelize
