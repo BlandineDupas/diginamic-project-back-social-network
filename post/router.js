@@ -3,13 +3,13 @@ const { Service } = require('./service');
 
 const router = express.Router();
 
-exports.messageRouter = (MODEL, sequelize, secret) => {
+exports.postRouter = (MODEL, sequelize, secret) => {
     const service = Service(MODEL, secret, sequelize);
 
     router
-    .route('/message')
+    .route('/post')
     .get((request, response) => {
-        service.findAll().then((messageList) => response.json(messageList))
+        service.findAll().then((postsList) => response.json(postsList))
     })
     .post((request, response) => {
         service
@@ -18,7 +18,15 @@ exports.messageRouter = (MODEL, sequelize, secret) => {
     });
 
     router
-    .route('/message/:id')
+    .route('/post/author')
+    .get((request, response) => {
+        service
+            .findByAuthor(request.query)
+            .then((result) => response.json(result))
+    })
+
+    router
+    .route('/post/:id')
     .get((request, response) => {
         service
             .findOne(request.params.id)
@@ -33,16 +41,6 @@ exports.messageRouter = (MODEL, sequelize, secret) => {
         service
             .destroy(request.params.id)
             .then(result => response.json(result))
-    })
-
-    // TODO changer l'adresse
-    router
-    .route('/message/author/:userId')
-    .get((request, response) => {
-        console.log(request.params.userId);
-        service
-            .findByAuthor(request.params.userId)
-            .then((result) => response.json(result))
     })
 
     return router;

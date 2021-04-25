@@ -10,7 +10,7 @@ exports.userRouter = (MODEL, sequelize, secret) => {
     router
     .route('/user')
     .get((request, response) => {
-        service.findAll().then((userList) => response.json(userList))
+        service.findAll(request.query).then((userList) => response.json(userList))
     })
     .post((request, response) => {
         service
@@ -45,6 +45,24 @@ exports.userRouter = (MODEL, sequelize, secret) => {
     .delete((request, response) => {
         service
             .destroy(request.params.id)
+            .then(result => response.json(result))
+    })
+
+    router
+    .route('/user/:id/invite')
+    .post((request, response) => {
+        service
+            .proposeInvite(request.body, request.params.id)
+            .then((result) => response.json(result))
+    })
+    .put((request, response) => {
+        service
+            .answerInvite(request.body, request.params.id)
+            .then(result => response.json(result))
+    })
+    .delete((request, response) => {
+        service
+            .destroyInvite(request.body, request.params.id)
             .then(result => response.json(result))
     })
 
