@@ -3,8 +3,8 @@ const { Service } = require('./service');
 
 const router = express.Router();
 
-exports.commentRouter = (MODEL, sequelize, secret) => {
-    const service = Service(MODEL, secret);
+exports.commentRouter = () => {
+    const service = Service();
 
     router
     .route('/comment')

@@ -1,24 +1,25 @@
-exports.Service = (MODEL, secret) => {
+
+exports.Service = () => {
     // CRUD
     const create = async (comment) => {
         const { content, authorId, postId } = comment;
-        return await MODEL.create({
+        return await COMMENT.create({
             content,
             'USERId': authorId,
             'POSTId': postId
         });
     }
     const findOne = async (id) => {
-        return await MODEL.findOne({ where: { id }})
+        return await COMMENT.findOne({ where: { id }})
     }
 
     const update = async (comment, id) => {
-        return await MODEL.update(comment, { where: { id }})
+        return await COMMENT.update(comment, { where: { id }})
     }
     
     const destroy = async (id) => {
         // TODO supprimer les données reliées au comment
-        return await MODEL.destroy({ where: { id }})
+        return await COMMENT.destroy({ where: { id }})
     }
 
     // Find ALl

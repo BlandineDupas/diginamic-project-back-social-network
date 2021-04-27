@@ -1,33 +1,34 @@
 const { Sequelize, Op } = require('sequelize');
+const sequelize = require('../sequelize');
 
-exports.Service = (MODEL, secret, sequelize) => {
-    const { COMMENT, USER } = sequelize.models
+exports.Service = () => {
+    const { POST, COMMENT, USER } = sequelize.models
     
     // CRUD
     const create = async (post) => {
         const { content, authorId } = post;
-        return await MODEL.create({
+        return await POST.create({
             content,
             'USERId': authorId
         });
     }
     
     const findOne = async (id) => {
-        return await MODEL.findOne({ where: { id }})
+        return await POST.findOne({ where: { id }})
     }
 
     const update = async (post, id) => {
-        return await MODEL.update(post, { where: { id }})
+        return await POST.update(post, { where: { id }})
     }
 
     const destroy = async (id) => {
         // TODO supprimer les données reliées au post
-        return await MODEL.destroy({ where: { id }})
+        return await POST.destroy({ where: { id }})
     }
 
     // Find All
     const findAll = async () => {
-        return await MODEL.findAll({
+        return await POST.findAll({
             include: [
                 USER,
                 { model: COMMENT, include: USER}
@@ -44,7 +45,7 @@ exports.Service = (MODEL, secret, sequelize) => {
         // 1j = 86400000 millisecondes
         // 1h = 3600000 millisecondes
         // 1min = 60000 millisecondes
-        return await MODEL.findAll({
+        return await POST.findAll({
             where: Sequelize.and(
                 {[Op.or]: authorParam},
                 { 'createdAt': { [Op.gt]: now }}

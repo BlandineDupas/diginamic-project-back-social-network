@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const saltRounds = 10;
 
+const sequelize = require('../sequelize');
 /**
  * Hash a string
  * 
@@ -16,16 +17,16 @@ const hash = async (password) => {
 
 const compareHash = async (password, hash) => await bcrypt.compare(password, hash);
 
-exports.Service = (MODEL, secret, sequelize) => {
-    const { POST, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE, FRIENDS } = sequelize.models
+exports.Service = (SECRET) => {
+    const { USER, POST, COMMENT, PROPOSED_INVITE, RECEIVED_INVITE, FRIENDS } = sequelize.models
 
     // CRUD
     const create = async (user) => {
         const { email } = user;
-        const exists = await MODEL.findOne({ where: { email }});
+        const exists = await USER.findOne({ where: { email }});
         if (!exists) {
             const hashedPassword = await hash(user.password);
-            return await MODEL.create({
+            return await USER.create({
                 ...user,
                 password: hashedPassword
             });
@@ -35,7 +36,7 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
     
     const findOne = async (id) => {
-        return await MODEL.findOne({
+        return await USER.findOne({
             where: { id },
             include: [
                 // { association: 'received_invites', through: { attributes: ['status', 'createdAt'] } },
@@ -48,12 +49,12 @@ exports.Service = (MODEL, secret, sequelize) => {
     }
 
     const update = async (user, id) => {
-        return await MODEL.update(user, { where: { id }})
+        return await USER.update(user, { where: { id }})
     }
 
     const destroy = async (id) => {
         // TODO supprimer les données reliées au user
-        return await MODEL.destroy({ where: { id }})
+        return await USER.destroy({ where: { id }})
     }
 
     // Find All
@@ -79,7 +80,7 @@ exports.Service = (MODEL, secret, sequelize) => {
             { firstname: {[Op.like]: '%' + words[0] + '%'}, lastname: {[Op.like]: '%' + words[1] + ' ' + words[2] + '%'}}
         ));
 
-        return await MODEL.findAll({
+        return await USER.findAll({
             where: whereParam,
             include: [
                 { model: POST, include: COMMENT},
@@ -91,7 +92,7 @@ exports.Service = (MODEL, secret, sequelize) => {
     
     // Specific
     const logUser = async (email, password) => {
-        const user = await MODEL.findOne({
+        const user = await USER.findOne({
             where: { email },
             include: [
                 { association: 'proposed_invites', through: { attributes: ['status', 'createdAt'] } },
@@ -107,7 +108,7 @@ exports.Service = (MODEL, secret, sequelize) => {
         
         const { lastname, firstname } = user;
         return {
-            token: jwt.sign({ email, lastname, firstname }, secret, { expiresIn: '1h' }),
+            token: jwt.sign({ email, lastname, firstname }, SECRET, { expiresIn: '1h' }),
             user
         }
     }

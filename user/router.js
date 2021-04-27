@@ -1,11 +1,10 @@
-const { response, request } = require('express');
 const express = require('express');
 const { Service } = require('./service');
 
 const router = express.Router();
 
-exports.userRouter = (MODEL, sequelize, secret) => {
-    const service = Service(MODEL, secret, sequelize);
+exports.userRouter = (SECRET) => {
+    const service = Service(SECRET);
 
     router
     .route('/user')

@@ -3,8 +3,8 @@ const { Service } = require('./service');
 
 const router = express.Router();
 
-exports.postRouter = (MODEL, sequelize, secret) => {
-    const service = Service(MODEL, secret, sequelize);
+exports.postRouter = () => {
+    const service = Service();
 
     router
     .route('/post')
