@@ -18,20 +18,13 @@ exports.socket = (server, corsOptions) => {
 
     io.on('connection', (socket) => {
         console.log('a user connected');
+        socket.emit('update')
         socket.on('disconnect', () => {
             console.log('user disconnected')
         });
-        socket.on('new message', () => {
-            console.log('new message')
-        });
-        socket.on('new comment', () => {
-            console.log('new comment')
-        });
-        socket.on('new message', () => {
-            console.log('new message')
-        });
-        socket.on('new message', () => {
-            console.log('new message')
+        socket.on('new friend', () => {
+            console.log('new friend')
+            socket.emit('update')
         });
     })
 }
